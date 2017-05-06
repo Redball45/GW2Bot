@@ -1337,7 +1337,8 @@ class GuildWars2:
             await self.bot.say("{0.mention}, API has responded with the following error: "
                                "`{1}`".format(user, e))
             return
-        search = re.compile(item + ".*", re.IGNORECASE)
+        item_sanitized = re.escape(item)
+        search = re.compile(item_sanitized + ".*", re.IGNORECASE)
         cursor = self.db.items.find({"name": search})
         number = await cursor.count()
         if not number:
