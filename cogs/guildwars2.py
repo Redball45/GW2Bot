@@ -84,7 +84,7 @@ class GuildWars2:
         try:
             results = await self.call_api(endpoint, headers)
         except APIError as e:
-            await self.bot.say("{0.mention}, {1}. {2}".format(user, e, output))
+            await self.bot.say("{0.mention}, {1}. {2}".format(user, "invalid key", output))
             return
         endpoint = "account"
         try:
@@ -796,7 +796,7 @@ class GuildWars2:
         item_id = ""
         itemlist = []
         for item in treasury:
-            res = await self.db.items.find({"_id": item["item_id"]})
+            res = await self.db.items.find_one({"_id": item["item_id"]})
             itemlist.append(res)
         # Collect amounts
         if treasury:
@@ -1131,6 +1131,7 @@ class GuildWars2:
             return
         search = "+".join(search)
         wiki = "http://wiki.guildwars2.com/"
+        wiki_ = "http://wiki.guildwars2.com"
         search = search.replace(" ", "+")
         user = ctx.message.author
         url = wiki + \
@@ -1143,7 +1144,7 @@ class GuildWars2:
             div = soup.find("div", {"class": "mw-search-result-heading"})
             a = div.find('a')
             link = a['href']
-            await self.bot.say("{0.mention}: {1}{2}".format(user, wiki, link))
+            await self.bot.say("{0.mention}: {1}{2}".format(user, wiki_, link))
         except:
             await self.bot.say("{0.mention}, no results found".format(user))
 
