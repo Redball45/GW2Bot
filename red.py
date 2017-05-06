@@ -37,7 +37,7 @@ from io import TextIOWrapper
 #                 https://github.com/Rapptz/RoboDanny/
 #
 
-description = "Red - A multifunction Discord bot by Twentysix"
+description = "GW2BOT - For all your GW2 needs\nPowered by Red"
 
 
 class Bot(commands.Bot):
@@ -59,6 +59,7 @@ class Bot(commands.Bot):
         self._message_modifiers = []
         self.settings = Settings()
         self._intro_displayed = False
+        self.building_database = False
         self._shutdown_mode = None
         self.logger = set_logger(self)
         self._last_exception = None
@@ -92,10 +93,7 @@ class Bot(commands.Bot):
         return await super().send_message(*args, **kwargs)
 
     async def shutdown(self, *, restart=False):
-        """Gracefully quits Red with exit code 0
-
-        If restart is True, the exit code will be 26 instead
-        The launcher automatically restarts Red when that happens"""
+        """Shut down"""
         self._shutdown_mode = not restart
         await self.logout()
 
@@ -142,6 +140,9 @@ class Bot(commands.Bot):
 
     def user_allowed(self, message):
         author = message.author
+
+        if self.building_database:
+            return False
 
         if author.bot:
             return False
@@ -367,9 +368,7 @@ def initialize(bot_class=Bot, formatter_class=Formatter):
 
             bot.logger.exception("Exception in command '{}'".format(
                 ctx.command.qualified_name), exc_info=error.original)
-            message = ("Error in command '{}'. Check your console or "
-                       "logs for details."
-                       "".format(ctx.command.qualified_name))
+            message = ("Something went wrong. If the issue persists, please contact the author. ")
             log = ("Exception in command '{}'\n"
                    "".format(ctx.command.qualified_name))
             log += "".join(traceback.format_exception(type(error), error,
@@ -384,8 +383,8 @@ def initialize(bot_class=Bot, formatter_class=Formatter):
             await bot.send_message(channel, "That command is not "
                                             "available in DMs.")
         elif isinstance(error, commands.CommandOnCooldown):
-            await bot.send_message(channel, "This command is on cooldown. "
-                                            "Try again in {:.2f}s"
+            await bot.send_message(channel, "You cannot use this command again for the next "
+                                            "{:.2f} seconds"
                                             "".format(error.retry_after))
         else:
             bot.logger.exception(type(error).__name__, exc_info=error)
@@ -533,8 +532,7 @@ def set_cog(cog, value):  # TODO: move this out of red.py
 
 
 def load_cogs(bot):
-    defaults = ("alias", "audio", "customcom", "downloader", "economy",
-                "general", "image", "mod", "streams", "trivia")
+    defaults = ("guildwars2")
 
     try:
         registry = dataIO.load_json("data/red/cogs.json")
