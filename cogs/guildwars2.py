@@ -1410,7 +1410,8 @@ class GuildWars2:
     async def skillinfo(self, ctx, *, skill):
         """Information about a given skill"""
         user = ctx.message.author
-        search = re.compile(skill + ".*", re.IGNORECASE)
+        skill_sanitized = re.escape(skill)
+        search = re.compile(skill_sanitized + ".*", re.IGNORECASE)
         cursor = self.db.skills.find({"name": search})
         number = await cursor.count()
         if not number:
