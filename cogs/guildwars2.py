@@ -324,7 +324,7 @@ class GuildWars2:
         """
         user = ctx.message.author
         scopes = ["characters"]
-        endpoint = "characters"
+        endpoint = "characters?page=0"
         keydoc = await self.fetch_key(user)
         try:
             await self._check_scopes_(user, scopes)
@@ -340,7 +340,7 @@ class GuildWars2:
             return
         output = "{0.mention}, your characters: ```"
         for x in results:
-            output += "\n" + x
+            output += "\n" + x["name"] + " (" + x["profession"] + ")"
         output += "```"
         await self.bot.say(output.format(user))
 
