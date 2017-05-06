@@ -1,55 +1,46 @@
+A Guild Wars 2 bot, powered by [Red-Discordbot](https://github.com/Twentysix26/Red-DiscordBot) by Twentysix
 
-![intro](http://i.imgur.com/RgGlNpQ.jpg)
+You can invite the public bot here: https://discordapp.com/oauth2/authorize?client_id=310050883100737536&scope=bot&permissions=27648
 
-# Red - A fully customizable Discord bot
-#### *Music, admin, trivia, fun commands and much more!*
-[<img src="https://img.shields.io/badge/Support-me!-orange.svg">](https://www.patreon.com/Twentysix26)  [<img src="https://img.shields.io/badge/discord-py-blue.svg">](https://github.com/Rapptz/discord.py) [<img src="https://discordapp.com/api/guilds/133049272517001216/widget.png?style=shield">](https://discord.gg/red) [![Build Status](https://travis-ci.org/Twentysix26/Red-DiscordBot.svg?branch=develop)](https://travis-ci.org/Twentysix26/Red-DiscordBot)
+If you want to run the bot yourself, you'll need to have MongoDB installed and running, and motor installed.
 
-**Red** is a fully modular bot – meaning all features and commands can be enabled/disabled to your liking, making it completely customizable.  
-This is also a *self-hosted bot* – meaning you will need to host and maintain your own instance. You can turn Red into an admin bot, music bot, trivia bot, new best friend or all of these together!  
-[Installation is easy](https://twentysix26.github.io/Red-Docs/), and you do NOT need to know anything about coding! Aside from installation and updating, every part of the bot can be controlled from within Discord.
+Feature list
 
-The default set of modules includes and is not limited to:
-* Moderation features (kick/ban/softban/hackban, mod-log, filter, chat cleanup)
-* Trivia (lists are included and can be easily added)
-* Music features (YouTube, SoundCloud, local files, playlists, queues)
-* Stream alerts (Twitch, Hitbox, Beam)
-* Slot machines
-* Custom commands
-* Imgur/gif search
+* [Persistent storage of API keys](https://i.imgur.com/J60gTod.png)
+* [**Search your account for items GW2Efficiency style**](https://i.imgur.com/IWbXO45.png)
+* [Automatic game update notifications](https://i.imgur.com/CjdiMe1.png)
+* Character stuff:
+ * [Character info](https://i.imgur.com/Tg9CJWA.png)
+ * [**Gearcheck**](https://i.imgur.com/uDyOdDz.png)
+ * Character list (self explanatory)
+* Daily things:
+ * [Daily Pact Supply Network
+](https://i.imgur.com/8d1XcJP.png)
+ * [Daily pve/pvp/wvw/fractals](https://i.imgur.com/VCpmeVV.png)
+* [Account info](https://i.imgur.com/4nmuCeo.png)
+* [Describe a skill](https://i.imgur.com/rToNzli.png)
+* PvP stuff:
+ * [Stats](https://i.imgur.com/J7y78Tn.png)
+ * [General profession stats](https://i.imgur.com/E4RlZfG.png)
+ * [Specific profession stats!](https://i.imgur.com/JDvdDMd.png)
+* [Check how many Legendary Insights you have](https://i.imgur.com/nK1G9Ih.png)
+* [Check which bosses you haven't killed in the current week](https://i.imgur.com/mnP1zol.png)
+* [Wallet commands (too many to screenshot)](https://i.imgur.com/FS4c3d6.png)
+* [Current TP transaction status - selling/buying](https://i.imgur.com/UXD6MEf.png) - courtesy of n1tr0-5urf3r
+* [Guild commands](https://i.imgur.com/qBBG8CF.png) - courtesy of n1tr0-5urf3r
+* [WvW info](https://i.imgur.com/TLL3Mek.png)
+* [Wiki search](https://i.imgur.com/1nKhuE0.png)
 
-Additionally, other modules (cogs) can be easily found and added from our growing community of cog repositories. Including:
-* Cleverbot integration (talk to Red and she talks back)
-* Loggers
-* Welcome messages setup
-* Reminders
-* Raffles
-* Leveler (increase levels for server participation)
-* DotA
-* And much, much more!
+Questions, questions...
 
-Feel free to take a [peek](https://cogs.red/)!
+**How do I use the bot?**
 
-# Installation
+After the bot has been added to the server using [this link](https://discordapp.com/oauth2/authorize?client_id=310050883100737536&scope=bot&permissions=27648), you can access the commands using $ prefix. Type $help for list of all commands. Server admins can change the prefix to something else using $prefix
 
-The installation process is straightforward; all major platforms are supported: 
-* [Windows](https://twentysix26.github.io/Red-Docs/red_install_windows/)
-* [Linux](https://twentysix26.github.io/Red-Docs/red_install_linux/)
-* [macOS](https://twentysix26.github.io/Red-Docs/red_install_mac/)
+**How do I setup game update notifications?**
 
-Read the [getting started](https://twentysix26.github.io/Red-Docs/red_getting_started/) guide to quickly learn how to use Red.  
+First, you must have the "manage server" permission. Provided you have that, first point the bot to the channel where it'll post announcements, using $updatenotifier channel #<channel>. After that, enable it using $updatenotifier toggle on. Make sure the bot has permissions to talk in that channel.
 
-If you have any other questions, feel free to explore the [Docs](https://twentysix26.github.io/Red-Docs/) for guidance.
+**Does the bot work in DMs?**
 
-If [*after reading the guides*](https://twentysix26.github.io/Red-Docs/) you are still experiencing issues that are not listed on [this page](https://twentysix26.github.io/Red-Docs/red_guide_troubleshooting/) or in the [FAQs](https://twentysix26.github.io/Red-Docs/red_faq/), feel free to join the [official server](https://discord.gg/red) for help.  
-Have fun!
-
-# Join the community!
-
-Red is in continuous development, and it’s supported by an active community which produces new content (cogs/plugins) for everyone to enjoy. New features are constantly added. If you can’t [find](https://cogs.red/) what you’re looking for, we are open to suggestions! Stay tuned by [joining the official server](https://discord.gg/red)!
-
-# License
-
-Released under the [GNU GPL v3](LICENSE).
-
-*Red is named after the main character of "Transistor", a videogame by [Supergiant Games](https://www.supergiantgames.com/games/transistor/)*
+Yes. API keys are cross-server too, if you're in multiple servers with the bot.
