@@ -62,7 +62,12 @@ class GuildWars2:
     @commands.cooldown(1, 10, BucketType.user)
     @key.command(pass_context=True, name="add")
     async def key_add(self, ctx, key):
-        """Adds your key and associates it with your discord account"""
+        """Adds your key and associates it with your discord account
+
+        To generate an API key, head to https://account.arena.net, and log in.
+        In the "Applications" tabs, generate a new key, prefereably with all permissions.
+        Then input it using $key add <key>
+        """
         server = ctx.message.server
         channel = ctx.message.channel
         user = ctx.message.author
@@ -678,7 +683,6 @@ class GuildWars2:
         name = results["name"]
         tag = results["tag"]
         member_cap = results["member_capacity"]
-        motd = results["motd"]
         influence = results["influence"]
         aetherium = results["aetherium"]
         resonance = results["resonance"]
@@ -693,7 +697,9 @@ class GuildWars2:
         data.add_field(name='Favor', value=favor, inline=True)
         data.add_field(name='Members', value=str(
             member_count) + "/" + str(member_cap), inline=True)
-        data.add_field(name='Message of the day:', value=motd, inline=False)
+        if "motd" in results:
+            motd = results["motd"]
+            data.add_field(name='Message of the day:', value=motd, inline=False)
         data.set_footer(text='A level {0} guild'.format(level))
         try:
             await self.bot.say(embed=data)
@@ -1148,17 +1154,19 @@ class GuildWars2:
         except:
             await self.bot.say("{0.mention}, no results found".format(user))
 
-    @commands.cooldown(1, 7, BucketType.user)
+    @commands.cooldown(1, 4, BucketType.user)
     @commands.command(pass_context=True)
     async def daily(self, ctx, pve_pvp_wvw_fractals_psna):
-        """Show today's dailies. Use `pvp`, `pve`, `wvw`, `fractals` or `psna` for pact supply"""
-        valid_dailies = ["pvp", "wvw", "pve", "fractals"]
+        """Dailies. Use `pvp`, `pve`, `wvw`, `fractals` or `psna` for pact supply.
+        You can also use `all` for all dailies
+        """
+        valid_dailies = ["pvp", "wvw", "pve", "fractals", "all"]
         user = ctx.message.author
         search = pve_pvp_wvw_fractals_psna.lower()
         if search == "psna":
-            chatcodes = self.gamedata["pact_supply"][datetime.datetime.utcnow().weekday()]
-            await self.bot.say("Paste this into chat for pact supply network agent "
-                               "locations: ```{0}```".format(chatcodes))
+            data = ("Paste this into chat for pact supply network agent "
+                               "locations: ```{0}```".format(self.get_psna()))
+            await self.bot.say(data)
             return
         try:
             endpoint = "achievements/daily"
@@ -1166,6 +1174,10 @@ class GuildWars2:
         except APIError as e:
             await self.bot.say("{0.mention}, API has responded with the following error: "
                                "`{1}`".format(user, e))
+            return
+        if search == "all":
+            data = await self.display_all_dailies(results)
+            await self.bot.say("```" + data + "```")
             return
         if search in valid_dailies:
             data = results[search]
@@ -1194,6 +1206,34 @@ class GuildWars2:
             output += "\n" + x["name"]
         output += "```"
         await self.bot.say(output)
+
+    async def display_all_dailies(self, dailylist):
+        dailies = ["Daily PSNA:", self.get_psna()]
+        fractals = []
+        sections = ["pve", "pvp", "wvw", "fractals"]
+        for x in sections:
+            section = dailylist[x]
+            dailies.append("{0} DAILIES:".format(x.upper()))
+            if x == "fractals":
+                for x in section:
+                    d = await self.db.achievements.find_one({"_id": x["id"]})
+                    fractals.append(d)
+                for frac in fractals:
+                    if not frac["name"].startswith("Daily Tier"):
+                        dailies.append(frac["name"])
+                    if frac["name"].startswith("Daily Tier 4"):
+                        dailies.append(frac["name"])
+            else:
+                for x in section:
+                    if x["level"]["max"] == 80:
+                        d = await self.db.achievements.find_one({"_id": x["id"]})
+                        dailies.append(d["name"])
+        return "\n".join(dailies)
+
+    def get_psna(self):
+            offset = datetime.timedelta(hours=-8)
+            tzone = datetime.timezone(offset)
+            return self.gamedata["pact_supply"][datetime.datetime.now(tzone).weekday()]
 
     @commands.group(pass_context=True, no_pm=True, name="updatenotifier")
     @checks.admin_or_permissions(manage_server=True)
@@ -1228,7 +1268,7 @@ class GuildWars2:
 
     @checks.mod_or_permissions(administrator=True)
     @gamebuild.command(pass_context=True)
-    async def toggle(self, ctx, on_off: bool = None):
+    async def toggle(self, ctx, on_off: bool):
         """Toggles checking for new builds"""
         server = ctx.message.server
         if on_off is not None:
@@ -1504,6 +1544,9 @@ class GuildWars2:
         cursor = self.db.keys.find()
         result = await cursor.count()
         await self.bot.say("{} registered users".format(result))
+        cursor_servers = self.db.settings.find()
+        result_servers = await cursor_servers.count()
+        await self.bot.say("{} servers for update notifs".format(result_servers))
 
     @commands.command(pass_context=True, no_pm=True)
     @checks.serverowner_or_permissions(administrator=True)
