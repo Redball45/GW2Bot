@@ -65,7 +65,7 @@ class GuildWars2:
         """Adds your key and associates it with your discord account
 
         To generate an API key, head to https://account.arena.net, and log in.
-        In the "Applications" tabs, generate a new key, prefereably with all permissions.
+        In the "Applications" tab, generate a new key, prefereably with all permissions.
         Then input it using $key add <key>
         """
         server = ctx.message.server
@@ -1154,20 +1154,75 @@ class GuildWars2:
         except:
             await self.bot.say("{0.mention}, no results found".format(user))
 
-    @commands.cooldown(1, 4, BucketType.user)
-    @commands.command(pass_context=True)
-    async def daily(self, ctx, pve_pvp_wvw_fractals_psna):
-        """Dailies. Use `pvp`, `pve`, `wvw`, `fractals` or `psna` for pact supply.
-        You can also use `all` for all dailies
-        """
-        valid_dailies = ["pvp", "wvw", "pve", "fractals", "all"]
-        user = ctx.message.author
-        search = pve_pvp_wvw_fractals_psna.lower()
-        if search == "psna":
-            data = ("Paste this into chat for pact supply network agent "
-                               "locations: ```{0}```".format(self.get_psna()))
-            await self.bot.say(data)
+
+    @commands.group(pass_context=True)
+    async def daily(self, ctx):
+        """Commands showing daily things"""
+        if ctx.invoked_subcommand is None:
+            await self.bot.send_cmd_help(ctx)
+
+
+    @commands.cooldown(1, 10, BucketType.user)
+    @daily.command(pass_context=True, name="pve")
+    async def daily_pve(self, ctx):
+        """Show today's PvE dailies"""
+        try:
+            output = await self.daily_handler("pve")
+        except APIError as e:
+            await self.bot.say("{0.mention}, API has responded with the following error: "
+                               "`{1}`".format(user, e))
             return
+        await self.bot.say(output)
+
+    @commands.cooldown(1, 10, BucketType.user)
+    @daily.command(pass_context=True, name="wvw")
+    async def daily_wvw(self, ctx):
+        """Show today's WvW dailies"""
+        try:
+            output = await self.daily_handler("wvw")
+        except APIError as e:
+            await self.bot.say("{0.mention}, API has responded with the following error: "
+                               "`{1}`".format(user, e))
+            return
+        await self.bot.say(output)
+
+    @commands.cooldown(1, 10, BucketType.user)
+    @daily.command(pass_context=True, name="pvp")
+    async def daily_pvp(self, ctx):
+        """Show today's PvP dailies"""
+        try:
+            output = await self.daily_handler("pvp")
+        except APIError as e:
+            await self.bot.say("{0.mention}, API has responded with the following error: "
+                               "`{1}`".format(user, e))
+            return
+        await self.bot.say(output)
+
+    @commands.cooldown(1, 10, BucketType.user)
+    @daily.command(pass_context=True, name="fractals")
+    async def daily_fractals(self, ctx):
+        """Show today's fractal dailie"""
+        try:
+            output = await self.daily_handler("fractals")
+        except APIError as e:
+            await self.bot.say("{0.mention}, API has responded with the following error: "
+                               "`{1}`".format(user, e))
+            return
+        await self.bot.say(output)
+
+    @commands.cooldown(1, 10, BucketType.user)
+    @daily.command(pass_context=True, name="psna")
+    async def daily_psna(self, ctx):
+        """Show today's Pact Supply Network Agent locations"""
+        output = ("Paste this into chat for pact supply network agent "
+                           "locations: ```{0}```".format(self.get_psna()))
+        await self.bot.say(output)
+        return
+
+    @commands.cooldown(1, 10, BucketType.user)
+    @daily.command(pass_context=True, name="all")
+    async def daily_all(self, ctx):
+        """Show today's all dailies"""
         try:
             endpoint = "achievements/daily"
             results = await self.call_api(endpoint)
@@ -1175,15 +1230,14 @@ class GuildWars2:
             await self.bot.say("{0.mention}, API has responded with the following error: "
                                "`{1}`".format(user, e))
             return
-        if search == "all":
-            data = await self.display_all_dailies(results)
-            await self.bot.say("```" + data + "```")
-            return
-        if search in valid_dailies:
-            data = results[search]
-        else:
-            await self.bot.say("Invalid type of daily")
-            return
+        output = await self.display_all_dailies(results)
+        await self.bot.say("```" + output + "```")
+
+
+    async def daily_handler(self, search):
+        endpoint = "achievements/daily"
+        results = await self.call_api(endpoint)
+        data = results[search]
         dailies = []
         daily_format = []
         daily_filtered = []
@@ -1205,7 +1259,7 @@ class GuildWars2:
         for x in daily_filtered:
             output += "\n" + x["name"]
         output += "```"
-        await self.bot.say(output)
+        return output
 
     async def display_all_dailies(self, dailylist):
         dailies = ["Daily PSNA:", self.get_psna()]
