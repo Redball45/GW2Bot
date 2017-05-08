@@ -46,7 +46,6 @@ class GuildWars2:
         self.gamedata = dataIO.load_json("data/guildwars2/gamedata.json")
         self.build = dataIO.load_json("data/guildwars2/build.json")
         self.session = aiohttp.ClientSession(loop=self.bot.loop)
-        self.user_cooldowns = {}
         self.current_day = dataIO.load_json("data/guildwars2/day.json")
 
     def __unload(self):
@@ -653,14 +652,14 @@ class GuildWars2:
 
     @commands.cooldown(1, 20, BucketType.user)
     @guild.command(pass_context=True, name="info")
-    async def guild_info(self, ctx, *, guild: str):
+    async def guild_info(self, ctx, *, guild_name: str):
         """Information about general guild stats
         Enter guilds name
         Requires a key with guilds scope
         """
         user = ctx.message.author
         color = self.getColor(user)
-        guild = guild.replace(' ', '%20')
+        guild = guild_name.replace(' ', '%20')
         scopes = ["guilds"]
         endpoint_id = "guild/search?name={0}".format(guild)
         keydoc = await self.fetch_key(user)
@@ -673,6 +672,9 @@ class GuildWars2:
             guild_id = str(guild_id).strip("']")
             endpoint = "guild/{0}".format(guild_id)
             results = await self.call_api(endpoint, headers)
+        except APINotFound:
+            await self.bot.say("Invalid guild name")
+            return
         except APIKeyError as e:
             await self.bot.say(e)
             return
@@ -709,12 +711,12 @@ class GuildWars2:
 
     @commands.cooldown(1, 20, BucketType.user)
     @guild.command(pass_context=True, name="members")
-    async def guild_members(self, ctx, *, guild: str):
+    async def guild_members(self, ctx, *, guild_name: str):
         """Get list of all members and their ranks
         Requires key with guilds scope and also Guild Leader permissions ingame"""
         user = ctx.message.author
         color = self.getColor(user)
-        guild = guild.replace(' ', '%20')
+        guild = guild_name.replace(' ', '%20')
         scopes = ["guilds"]
         endpoint_id = "guild/search?name={0}".format(guild)
         keydoc = await self.fetch_key(user)
@@ -731,6 +733,9 @@ class GuildWars2:
             results = await self.call_api(endpoint, headers)
         except APIKeyError as e:
             await self.bot.say(e)
+            return
+        except APINotFound:
+            await self.bot.say("Invalid guild name")
             return
         except APIError as e:
             await self.bot.say("{0.mention}, API has responded with the following error: "
@@ -768,12 +773,12 @@ class GuildWars2:
 
     @commands.cooldown(1, 20, BucketType.user)
     @guild.command(pass_context=True, name="treasury")
-    async def guild_treasury(self, ctx, *, guild: str):
+    async def guild_treasury(self, ctx, *, guild_name: str):
         """Get list of current and needed items for upgrades
            Requires key with guilds scope and also Guild Leader permissions ingame"""
         user = ctx.message.author
         color = self.getColor(user)
-        guild = guild.replace(' ', '%20')
+        guild = guild_name.replace(' ', '%20')
         scopes = ["guilds"]
         endpoint_id = "guild/search?name={0}".format(guild)
         keydoc = await self.fetch_key(user)
@@ -788,6 +793,9 @@ class GuildWars2:
             treasury = await self.call_api(endpoint, headers)
         except APIKeyError as e:
             await self.bot.say(e)
+            return
+        except APINotFound:
+            await self.bot.say("Invalid guild name")
             return
         except APIError as e:
             await self.bot.say("{0.mention}, API has responded with the following error: "
@@ -1236,7 +1244,7 @@ class GuildWars2:
 
     @checks.admin_or_permissions(manage_server=True)
     @commands.cooldown(1, 5, BucketType.user)
-    @daily.group(pass_context=True, name="notifier")
+    @daily.group(pass_context=True, name="notifier", no_pm=True)
     async def daily_notifier(self, ctx):
         """Sends a list of dailies on server reset to specificed channel.
         First, specify a channel using $daily notifier channel <channel>
@@ -1931,7 +1939,7 @@ class GuildWars2:
         async with self.session.get(url, headers=headers) as r:
             if r.status != 200 and r.status != 206:
                 if r.status == 404:
-                    raise APINotFound()
+                    raise APINotFound("Not found")
                 if r.status == 403:
                     raise APIConnectionError("Access denied")
                 if r.status == 429:
