@@ -118,7 +118,8 @@ class GuildWars2:
             await self.bot.say("{0.mention}, sucessfuly removed your key. "
                                "You may input a new one.".format(user))
         else:
-            await self.bot.say("{0.mention}, no API key associated with your account. Add your key using `$key add` command.".format(user))
+            await self.bot.say("{0.mention}, no API key associated with your account. "
+                               "Add your key using `$key add` command.".format(user))
 
     @commands.cooldown(1, 10, BucketType.user)
     @key.command(pass_context=True, name="info")
@@ -401,8 +402,11 @@ class GuildWars2:
                         gear[piece]["stat"] = await self.fetch_statname(item["stats"]["id"])
                     else:
                         thing = await self.db.items.find_one({"_id": item["id"]})
-                        statid = thing["details"]["infix_upgrade"]["id"]
-                        gear[piece]["stat"] = await self.fetch_statname(statid)
+                        try:
+                            statid = thing["details"]["infix_upgrade"]["id"]
+                            gear[piece]["stat"] = await self.fetch_statname(statid)
+                        except:
+                            gear[piece]["stat"] = ""
         profession = results["profession"]
         level = results["level"]
         color = self.gamedata["professions"][profession.lower()]["color"]
