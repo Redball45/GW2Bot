@@ -29,6 +29,9 @@ class APIError(Exception):
 class APIConnectionError(APIError):
     pass
 
+class APIForbidden(APIError):
+    pass
+
 class APINotFound(APIError):
     pass
 
@@ -282,6 +285,9 @@ class GuildWars2:
             results = await self.call_api(endpoint, headers)
         except APIKeyError as e:
             await self.bot.say(e)
+            return
+        except APINotFound:
+            await self.bot.say("Invalid character name")
             return
         except APIError as e:
             await self.bot.say("{0.mention}, API has responded with the following error: "
@@ -741,6 +747,9 @@ class GuildWars2:
         except APINotFound:
             await self.bot.say("Invalid guild name")
             return
+        except APIForbidden:
+            await self.bot.say("You need to be guild leader to use this command")
+            return
         except APIError as e:
             await self.bot.say("{0.mention}, API has responded with the following error: "
                                "`{1}`".format(user, e))
@@ -800,6 +809,9 @@ class GuildWars2:
             return
         except APINotFound:
             await self.bot.say("Invalid guild name")
+            return
+        except APIForbidden:
+            await self.bot.say("You need to be guild leader to use this command")
             return
         except APIError as e:
             await self.bot.say("{0.mention}, API has responded with the following error: "
@@ -1945,7 +1957,7 @@ class GuildWars2:
                 if r.status == 404:
                     raise APINotFound("Not found")
                 if r.status == 403:
-                    raise APIConnectionError("Access denied")
+                    raise APIForbidden("Access denied")
                 if r.status == 429:
                     print (time.strftime('%a %H:%M:%S'), "Api call limit reached")
                     raise APIConnectionError(
