@@ -50,6 +50,7 @@ class GuildWars2:
         self.build = dataIO.load_json("data/guildwars2/build.json")
         self.session = aiohttp.ClientSession(loop=self.bot.loop)
         self.current_day = dataIO.load_json("data/guildwars2/day.json")
+        self.boss_schedule = self.generate_schedule()
 
     def __unload(self):
         self.session.close()
@@ -811,7 +812,7 @@ class GuildWars2:
             await self.bot.say("Invalid guild name")
             return
         except APIForbidden:
-            await self.bot.say("You need to be guild leader to use this command")
+            await self.bot.say("You don't have enough permissions in the guild to this command")
             return
         except APIError as e:
             await self.bot.say("{0.mention}, API has responded with the following error: "
@@ -984,6 +985,8 @@ class GuildWars2:
             data.add_field(name="Lowest winrate profession", value="{0}, with {1}%".format(
                 lowestestwinrate.capitalize(), lowestwinrategames))
             data.set_author(name=accountname)
+            data.set_footer(text="PROTIP: Use $pvp professions <profession> for "
+                            "more detailed stats")
             try:
                 await self.bot.say(embed=data)
             except discord.HTTPException:
@@ -1180,6 +1183,15 @@ class GuildWars2:
             await self.bot.say("{0.mention}, no results found".format(user))
 
 
+    @commands.command(pass_context=True, aliases=["eventtimer", "eventtimers"])
+    async def et(self, ctx):
+        """The event timer. Shows upcoming world bosses."""
+        embed = self.schedule_embed(self.get_upcoming_bosses())
+        try:
+            await self.bot.say(embed=embed)
+        except:
+            await self.bot.say("Need permission to embed links")
+
     @commands.group(pass_context=True)
     async def daily(self, ctx):
         """Commands showing daily things"""
@@ -1327,9 +1339,9 @@ class GuildWars2:
         daily_filtered = []
         for x in data:
             if x["level"]["max"] == 80:
-                dailies.append(x["id"])
+                dailies.append(x)
         for daily in dailies:
-            d = await self.db.achievements.find_one({"_id": daily})
+            d = await self.db.achievements.find_one({"_id": daily["id"]})
             daily_format.append(d)
         if search == "fractals":
             for daily in daily_format:
@@ -1341,7 +1353,7 @@ class GuildWars2:
             daily_filtered = daily_format
         output = "{0} dailes for today are: ```".format(search.capitalize())
         for x in daily_filtered:
-            output += "\n" + x["name"]
+            output += "\n" + x["name"] + x["access"]
         output += "```"
         return output
 
@@ -1533,7 +1545,7 @@ class GuildWars2:
         cursor = self.db.items.find({"name": search})
         number = await cursor.count()
         if not number:
-            await self.bot.say("Your search gave me no results, sorry. Check for typos.")
+            await self.bot.say("Your search gave me no item results, sorry. Check for typos.")
             return
         if number > 20:
             await self.bot.say("Your search gave me {0} item results. Please be more specific".format(number))
@@ -1573,9 +1585,15 @@ class GuildWars2:
         for character in characters:
             results["characters"][character["name"]] = 0
             bags = [bag for bag in character["bags"] if bag != None]
+            equipment = [piece for piece in character["equipment"] if piece != None]
             for bag in bags:
                 inv = [item["count"] for item in bag["inventory"] if item != None and item["id"] == choice["_id"]]
                 results["characters"][character["name"]] += sum(inv)
+            try:
+                eqresults = [1 for piece in equipment if piece["id"] == choice["_id"]]
+                results["characters"][character["name"]] += sum(eqresults)
+            except:
+                pass
         if results["bank"]:
             output += "BANK: Found {0}\n".format(results["bank"])
         if results["material"]:
@@ -1587,7 +1605,9 @@ class GuildWars2:
                 if value:
                     output += "{0}: Found {1}\n".format(char.upper(), value)
         if not output:
-            await self.bot.edit_message(message, "Sorry, nothing found")
+            await self.bot.edit_message(message, "Sorry, not found on your account. "
+                                                 "Make sure you've selected the "
+                                                 "correct item.")
         else:
             await self.bot.edit_message(message, "```" + output + "```")
 
@@ -1675,6 +1695,10 @@ class GuildWars2:
             await self.bot.send_cmd_help(ctx)
             return
 
+    @commands.command(pass_context=True)
+    async def changelog(self, ctx):
+        """List of recent changes to the bot"""
+        await self.bot.say(self.get_changelog())
 
 
     @database.command(pass_context=True, name="create")
@@ -1721,7 +1745,7 @@ class GuildWars2:
         p = "Prefixes" if len(prefixes) > 1 else "Prefix"
         await self.bot.say("{} set for this server.\n"
                            "To go back to the global prefixes, do"
-                           " `{}serverprefix` "
+                           " `{}prefix` "
                            "".format(p, prefixes[0]))
 
     async def rebuild_database(self):
@@ -1735,6 +1759,8 @@ class GuildWars2:
         await self.db.skins.drop()
         await self.db.currencies.drop()
         await self.db.skills.drop()
+        await self.bot.change_presence(game=discord.Game(name="Rebuilding API cache"),
+                                       status=discord.Status.dnd)
         self.bot.building_database = True
         try:
             items = await self.call_api("items")
@@ -1856,6 +1882,9 @@ class GuildWars2:
         await self.db.skills.insert_many(itemgroup)
         end = time.time()
         self.bot.building_database = False
+        await self.bot.change_presence(game=discord.Game(name="$help"),
+                                       status=discord.Status.online)
+
         print("Database done! Time elapsed: {0} seconds".format(end - start))
 
     async def _gamebuild_checker(self):
@@ -1892,6 +1921,11 @@ class GuildWars2:
                 print("Daily notifier exception: {0}\nExecution will continue".format(e))
                 await asyncio.sleep(60)
                 continue
+
+
+    def get_changelog(self):
+        with open("data/red/changelog.txt", "r") as f:
+            return f.read()
 
 
     def gold_to_coins(self, money):
@@ -2032,6 +2066,68 @@ class GuildWars2:
             return True
         else:
             return False
+
+    def generate_schedule(self):
+        time = datetime.datetime(1, 1, 1)
+        normal = self.gamedata["event_timers"]["bosses"]["normal"]
+        hardcore = self.gamedata["event_timers"]["bosses"]["hardcore"]
+        schedule = []
+        counter = 0
+        while counter < 12:
+            for boss in normal:
+                increment = datetime.timedelta(hours=boss["interval"] * counter)
+                time = (datetime.datetime(1, 1, 1, *boss["start_time"]) + increment)
+                if time.day != 1:
+                    continue
+                output = {"name" : boss["name"], "time" : str(time.time()), "waypoint" : boss["waypoint"]}
+                schedule.append(output)
+            counter += 1
+        for boss in hardcore:
+            for hours in boss["times"]:
+                output = {"name" : boss["name"], "time" : str(datetime.time(*hours)), "waypoint" : boss["waypoint"]}
+                schedule.append(output)
+        return sorted(schedule, key=lambda t: datetime.datetime.strptime(t["time"], "%H:%M:%S").time())
+
+
+    def get_upcoming_bosses(self, timezone=None): #TODO
+        upcoming_bosses = []
+        time = datetime.datetime.utcnow()
+        counter = 0
+        day = 0
+        done = False
+        while not done:
+            for boss in self.boss_schedule:
+                if counter == 8:
+                    done = True
+                    break
+                boss_time = datetime.datetime.strptime(boss["time"], "%H:%M:%S")
+                boss_time = boss_time.replace(year=time.year, month=time.month, day=time.day) + datetime.timedelta(days=day)
+                if time < boss_time:
+                    output = {"name" : boss["name"], "time" : str(boss_time.time()), "waypoint" : boss["waypoint"], "diff" : self.format_timedelta((boss_time - time))}
+                    upcoming_bosses.append(output)
+                    counter +=1
+            day += 1
+        return upcoming_bosses
+
+
+    def schedule_embed(self, schedule):
+        data = discord.Embed()
+        for boss in schedule:
+            value = "Time: {}\nWaypoint: {}".format(boss["time"], boss["waypoint"])
+            data.add_field(name="{} in {}".format(boss["name"], boss["diff"]), value=value, inline=False)
+        data.set_author(name="Upcoming world bosses")
+        data.set_footer(text="All times are for UTC. Timezone support coming soon™")
+        return data
+
+
+    def format_timedelta(self, td):
+        hours, remainder = divmod(td.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        if hours:
+            return "{} hours and {} minutes".format(hours, minutes)
+        else:
+            return "{} minutes".format(minutes)
+
 
     def check_day(self):
         current = datetime.datetime.utcnow().weekday()
