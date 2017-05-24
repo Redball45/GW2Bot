@@ -1353,7 +1353,7 @@ class GuildWars2:
             daily_filtered = daily_format
         output = "{0} dailes for today are: ```".format(search.capitalize())
         for x in daily_filtered:
-            output += "\n" + x["name"] + x["access"]
+            output += "\n" + x["name"]
         output += "```"
         return output
 
@@ -1892,12 +1892,17 @@ class GuildWars2:
             try:
                 if await self.update_build():
                     channels = await self.get_channels()
+                    try:
+                        link = await self.get_patchnotes()
+                        patchnotes = "\nPatchnotes: " + link
+                    except:
+                        patchontes = ""
                     if channels:
                         for channel in channels:
                             try:
                                 await self.bot.send_message(self.bot.get_channel(channel),
                                                             "@here Guild Wars 2 has just updated! New build: "
-                                                            "`{0}`".format(self.build["id"]))
+                                                            "`{0}`{1}".format(self.build["id"], patchnotes))
                             except:
                                 pass
                     else:
@@ -2179,6 +2184,14 @@ class GuildWars2:
                 missing = ", ".join(missing)
                 raise APIKeyError(
                     "{0.mention}, missing the following scopes to use this command: `{1}`".format(user, missing))
+
+    async def get_patchnotes(self):
+        url = "https://forum-en.guildwars2.com/forum/info/updates"
+        async with self.session.get(url) as r:
+            results = await r.text()
+        soup = BeautifulSoup(results, 'html.parser')
+        post = soup.find(class_="arenanet topic")
+        return "https://forum-en.guildwars2.com" + post.find("a")["href"]
 
     async def fetch_key(self, user):
         return await self.db.keys.find_one({"_id": user.id})
