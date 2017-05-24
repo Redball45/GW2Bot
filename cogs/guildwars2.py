@@ -1896,7 +1896,7 @@ class GuildWars2:
                         link = await self.get_patchnotes()
                         patchnotes = "\nPatchnotes: " + link
                     except:
-                        patchontes = ""
+                        patchnotes = ""
                     if channels:
                         for channel in channels:
                             try:
