@@ -10,6 +10,8 @@ import aiohttp
 import re
 import time
 import datetime
+from itertools import chain
+from operator import itemgetter
 from motor.motor_asyncio import AsyncIOMotorClient
 
 try:
@@ -245,18 +247,142 @@ class GuildWars2:
                                "`{1}`".format(user, e))
             return
 
-        bank = [item["count"]
-                for item in bank if item != None and item["id"] == 77302]
-        shared = [item["count"]
-                  for item in shared if item != None and item["id"] == 77302]
-        li = sum(bank) + sum(shared)
-        for character in characters:
-            bags = [bag for bag in character["bags"] if bag != None]
-            for bag in bags:
-                inv = [item["count"] for item in bag["inventory"]
-                       if item != None and item["id"] == 77302]
-                li += sum(inv)
-        await self.bot.edit_message(msg, "{0.mention}, you have {1} legendary insights".format(user, li))
+        # Items to look for
+        # TODO: Move out of code
+        id_legendary_insight = 77302
+        id_gift_of_prowess = 78989
+        id_envoy_insignia = 80516
+        ids_perfected_envoy_armor = {
+            # Helm, Shoulders, Coat, Gloves, Leggings, Boots
+            80384, 80435, 80254, 80205, 80277, 80557, # heavy
+            80296, 80145, 80578, 80161, 80252, 80281, # medium
+            80248, 80131, 80190, 80111, 80356, 80399  # light
+        }
+
+        # Filter empty slots out of the inventories to scan
+        # All inventories are converted to lists as they are used multiple
+        # times. If they stay as generators, the first scan on each will exhaust
+        # them, resulting in empty results for later scans (this was really hard
+        # to track down, since the scans are also generators, so the order of
+        # access to an inventory is not immediately obvious in the code).
+        # Since these lists may be large, also discard all completely
+        # uninteresting items right now.
+        __pre_filter = ids_perfected_envoy_armor.union({
+            id_legendary_insight, id_gift_of_prowess, id_envoy_insignia})
+        pre_filter = lambda a, b=__pre_filter: a["id"] in b
+        inv_bank = list(filter(pre_filter, filter(None, bank)))
+        del bank # We don't need these anymore, free them.
+
+        inv_shared = list(filter(pre_filter, filter(None, shared)))
+        del shared
+
+        # Bags and equipment are a little more complicated
+        # Bags have multiple inventories for each character, so:
+        # Step 6: Discard uninteresting
+        inv_bags = list(filter(pre_filter,
+            # Step 5: filter out empty slots
+            filter(None,
+                # Step 4: flatten!
+                chain.from_iterable(
+                    # Step 3: flatten.
+                    chain.from_iterable(
+                        # Step 2: get inventories from each existing bag
+                        (map(itemgetter("inventory"), filter(None, bags)) for bags in
+                            # Step 1: get all bags
+                            map(itemgetter("bags"), characters)))))))
+        # Now we have a simple list of items in all bags on all characters.
+
+        # Step 4: Discard uninteresting
+        equipped = list(filter(pre_filter,
+            # Step 3: flatten
+            chain.from_iterable(
+                # Step 2: Filter out empty slots
+                (filter(None, equipment) for equipment in
+                    # Step 1: get all character equipment
+                    map(itemgetter("equipment"), characters)))))
+        del characters
+        # Like the bags, we now have a simple list of character gear
+
+        # Filter out items that don't match the ones we want.
+        # Step 1: Define a test function for filter(). The id is passed in with
+        #         an optional argument to avoid any potential issues with scope.
+        li_scan = lambda a, b=id_legendary_insight: a["id"] == b
+        # Step 2: Filter out all items we don't care about
+        # Step 3: Extract the `count` field.
+        li_bank = map(itemgetter("count"), filter(li_scan, inv_bank))
+        li_shared = map(itemgetter("count"), filter(li_scan, inv_shared))
+        li_bags = map(itemgetter("count"), filter(li_scan, inv_bags))
+
+        prowess_scan = lambda a, b=id_gift_of_prowess: a["id"] == b
+        prowess_bank = map(itemgetter("count"), filter(prowess_scan, inv_bank))
+        prowess_shared = map(itemgetter("count"), filter(prowess_scan, inv_shared))
+        prowess_bags = map(itemgetter("count"), filter(prowess_scan, inv_bags))
+
+        insignia_scan = lambda a, b=id_envoy_insignia: a["id"] == b
+        insignia_bank = map(itemgetter("count"), filter(insignia_scan, inv_bank))
+        insignia_shared = map(itemgetter("count"), filter(insignia_scan, inv_shared))
+        insignia_bags = map(itemgetter("count"), filter(insignia_scan, inv_bags))
+
+        # This one is slightly different: since we are matching against a set
+        # of ids, we use `in` instead of a simple comparison.
+        armor_scan = lambda a, b=ids_perfected_envoy_armor: a["id"] in b
+        armor_bank = filter(armor_scan, inv_bank)
+        armor_shared = filter(armor_scan, inv_shared)
+        armor_bags = filter(armor_scan, inv_bags)
+        # immediately converting this to a list because we'll need the length
+        # later and that would exhaust the generator, resulting in surprises if
+        # it's used more later.
+        armor_equipped = list(filter(armor_scan, equipped))
+
+        # Now that we have all the items we are interested in, it's time to
+        # count them! Easy enough to just `sum` the `chain`.
+        sum_li = sum(chain(li_bank, li_bags, li_shared))
+        sum_prowess  = sum(chain(prowess_bank, prowess_shared, prowess_bags))
+        sum_insignia = sum(chain(insignia_bank, insignia_shared, insignia_bags))
+        # Armor is a little different. The ones in inventory have a count like
+        # the other items, but the ones equipped don't, so we can just take the
+        # length of the list there.
+        sum_armor = sum(chain(armor_bank, armor_shared, armor_bags)) + len(armor_equipped)
+
+        # LI is fine, but the others are composed of 25 or 50 LIs.
+        li_prowess = sum_prowess * 25
+        li_insignia = sum_insignia * 25
+        # First set is half off!
+        li_armor = li_armor = 6 * 25 + (sum_armor - 6) * 50 if sum_armor > 6 else sum_armor * 25
+        # Stagger the calculation for detail later.
+        crafted_li = li_prowess + li_insignia + li_armor
+        total_li = sum_li + crafted_li
+
+        # Construct an embed object for better formatting of our data
+        embed = discord.Embed()
+        # Right up front, the information everyone wants:
+        embed.title = "{0} Legendary Insights Earned".format(total_li)
+        # Identify the user that asked
+        embed.set_author(name=user.name, icon_url=user.avatar_url)
+        # LI icon as thumbnail looks pretty cool.
+        embed.set_thumbnail(url="https://render.guildwars2.com/file/6D33B7387BAF2E2CC9B5D37D1D1B01246AB6FA22/1302744.png")
+        # Legendary color!
+        embed.colour = 0x4C139D
+        # Quick breakdown. No detail on WHERE all those LI are. That's for $search.
+        embed.description = "{1} on hand, {2} used in crafting".format(total_li, sum_li, crafted_li)
+        # Save space by skipping empty sections
+        if sum_armor > 0:
+            embed.add_field(
+                name="{0} Perfected Envoy Armor Pieces".format(sum_armor), inline=False,
+                value="Representing {0} Legendary Insights".format(li_armor))
+        if sum_prowess > 0:
+            embed.add_field(
+                name="{0} Gifts of Prowess".format(sum_prowess), inline=False,
+                value="Representing {0} Legendary Insights".format(li_prowess))
+        if sum_insignia > 0:
+            embed.add_field(
+                name="{0} Envoy Insignia".format(sum_insignia), inline=False,
+                value="Representing {0} Legendary Insights".format(li_insignia))
+        # Identify the bot
+        embed.set_footer(text=self.bot.user.name, icon_url=self.bot.user.avatar_url)
+
+        # Edit the embed into the initial message.
+        await self.bot.edit_message(msg, "{0.mention}, here are your Legendary Insights".format(user), embed=embed)
 
     @commands.group(pass_context=True)
     async def character(self, ctx):
