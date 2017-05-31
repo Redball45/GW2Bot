@@ -326,9 +326,9 @@ class GuildWars2:
         # This one is slightly different: since we are matching against a set
         # of ids, we use `in` instead of a simple comparison.
         armor_scan = lambda a, b=ids_perfected_envoy_armor: a["id"] in b
-        armor_bank = filter(armor_scan, inv_bank)
-        armor_shared = filter(armor_scan, inv_shared)
-        armor_bags = filter(armor_scan, inv_bags)
+        armor_bank = map(itemgetter("count"), filter(armor_scan, inv_bank))
+        armor_shared = map(itemgetter("count"), filter(armor_scan, inv_shared))
+        armor_bags = map(itemgetter("count"), filter(armor_scan, inv_bags))
         # immediately converting this to a list because we'll need the length
         # later and that would exhaust the generator, resulting in surprises if
         # it's used more later.
