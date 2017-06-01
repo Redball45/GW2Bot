@@ -368,7 +368,7 @@ class GuildWars2:
         # `li_perfect_armor`.
         li_refined_armor = max(min(sum_perfect_armor, 6) + sum_refined_armor - 6, 0) * 25
         # Perfected Envoy Armor. First set is half off!
-        li_perfect_armor = 6 * 25 + max(sum_perfect_armor - 6, 0) * 50
+        li_perfect_armor = min(sum_perfect_armor, 6) * 25 + max(sum_perfect_armor - 6, 0) * 50
         # Stagger the calculation for detail later.
         crafted_li = li_prowess + li_insignia + li_perfect_armor + li_refined_armor
         total_li = sum_li + crafted_li
@@ -386,22 +386,22 @@ class GuildWars2:
         # Quick breakdown. No detail on WHERE all those LI are. That's for $search.
         embed.description = "{1} on hand, {2} used in crafting".format(total_li, sum_li, crafted_li)
         # Save space by skipping empty sections
-        if sum_perfect_armor > 0:
+        if li_perfect_armor > 25:
             embed.add_field(
                 name="{0} Perfected Envoy Armor Pieces".format(sum_perfect_armor),
                 value="Representing {0} Legendary Insights".format(li_perfect_armor),
                 inline=False)
-        if sum_refined_armor > 0:
+        if li_refined_armor > 25:
             embed.add_field(
                 name="{0} Refined Envoy Armor Pieces".format(sum_refined_armor),
                 value="Representing {0} Legendary Insights".format(li_refined_armor),
                 inline=False)
-        if sum_prowess > 0:
+        if li_prowess > 25:
             embed.add_field(
                 name="{0} Gifts of Prowess".format(sum_prowess),
                 value="Representing {0} Legendary Insights".format(li_prowess),
                 inline=False)
-        if sum_insignia > 0:
+        if li_insignia > 25:
             embed.add_field(
                 name="{0} Envoy Insignia".format(sum_insignia),
                 value="Representing {0} Legendary Insights".format(li_insignia),
