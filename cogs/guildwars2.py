@@ -248,22 +248,12 @@ class GuildWars2:
             return
 
         # Items to look for
-        # TODO: Move out of code
-        id_legendary_insight = 77302
-        id_gift_of_prowess = 78989
-        id_envoy_insignia = 80516
-        ids_refined_envoy_armor = {
-            # Helm, Shoulders, Coat,  Gloves, Leggings, Boots
-            80387,  80236,     80648, 80673,  80427,    80127, # Heavy
-            80634,  80366,     80607, 80658,  80675,    80177, # Medium
-            80441,  80264,     80120, 80460,  80275,    80583  # Light
-        }
-        ids_perfected_envoy_armor = {
-            # Helm, Shoulders, Coat,  Gloves, Leggings, Boots
-            80384,  80435,     80254, 80205,  80277,    80557, # Heavy
-            80296,  80145,     80578, 80161,  80252,    80281, # Medium
-            80248,  80131,     80190, 80111,  80356,    80399  # Light
-        }
+        ids = self.gamedata.get("insights")
+        id_legendary_insight = ids.get("legendary_insight")
+        id_gift_of_prowess = ids.get("gift_of_prowess")
+        id_envoy_insignia = ids.get("envoy_insignia")
+        ids_refined_envoy_armor = set(ids.get("refined_envoy_armor").values())
+        ids_perfected_envoy_armor = set(ids.get("perfected_envoy_armor").values())
 
         # Filter empty slots and uninteresting items out of the inventories.
         #
