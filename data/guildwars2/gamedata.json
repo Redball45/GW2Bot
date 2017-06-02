@@ -1,68 +1,68 @@
 {
     "professions" : {
-        "elementalist" : {
-            "color" : "0xDC423E",
-            "icon" : "https://wiki.guildwars2.com/images/a/a0/Elementalist_tango_icon_200px.png",
-            "name" : "Elementalist"
-        },
-        "engineer" : {
-            "color" : "0x87581D",
-            "icon" : "https://wiki.guildwars2.com/images/2/2f/Engineer_tango_icon_200px.png",
-            "name" : "Engineer"
-        },
-        "guardian" : {
-            "color" : "0x186885",
-            "icon" : "https://wiki.guildwars2.com/images/6/6c/Guardian_tango_icon_200px.png",
-            "name" : "Guardian"
-        },
-        "mesmer" : {
-            "color" : "0x69278A",
-            "icon" : "https://wiki.guildwars2.com/images/7/73/Mesmer_tango_icon_200px.png",
-            "name" : "Mesmer"
-        },
-        "necromancer" : {
-            "color" : "0x2C9D5D",
-            "icon" : "https://wiki.guildwars2.com/images/c/cd/Necromancer_tango_icon_200px.png",
-            "name" : "Necromancer"
-        },
-        "ranger" : {
-            "color" : "0x67A833",
-            "icon" : "https://wiki.guildwars2.com/images/5/51/Ranger_tango_icon_200px.png",
-            "name" : "Necromancer"
-        },
-        "revenant" : {
-            "color" : "0xA66356",
-            "icon" : "https://wiki.guildwars2.com/images/a/a8/Revenant_tango_icon_200px.png",
-            "name" : "Revenant"
-        },
-        "thief" : {
-            "color" : "0x974550",
-            "icon" : "https://wiki.guildwars2.com/images/1/19/Thief_tango_icon_200px.png",
-            "name" : "Thief"
-        },
-        "warrior" : {
-            "color" : "0xCAAA2A",
-            "icon" : "https://wiki.guildwars2.com/images/d/db/Warrior_tango_icon_200px.png",
-            "name" : "Warrior"
-        }
+      "elementalist" : {
+        "color" : "0xDC423E",
+        "icon" : "https://wiki.guildwars2.com/images/a/a0/Elementalist_tango_icon_200px.png",
+        "name" : "Elementalist"
+      },
+      "engineer" : {
+        "color" : "0x87581D",
+        "icon" : "https://wiki.guildwars2.com/images/2/2f/Engineer_tango_icon_200px.png",
+        "name" : "Engineer"
+      },
+      "guardian" : {
+        "color" : "0x186885",
+        "icon" : "https://wiki.guildwars2.com/images/6/6c/Guardian_tango_icon_200px.png",
+        "name" : "Guardian"
+      },
+      "mesmer" : {
+        "color" : "0x69278A",
+        "icon" : "https://wiki.guildwars2.com/images/7/73/Mesmer_tango_icon_200px.png",
+        "name" : "Mesmer"
+      },
+      "necromancer" : {
+        "color" : "0x2C9D5D",
+        "icon" : "https://wiki.guildwars2.com/images/c/cd/Necromancer_tango_icon_200px.png",
+        "name" : "Necromancer"
+      },
+      "ranger" : {
+        "color" : "0x67A833",
+        "icon" : "https://wiki.guildwars2.com/images/5/51/Ranger_tango_icon_200px.png",
+        "name" : "Necromancer"
+      },
+      "revenant" : {
+        "color" : "0xA66356",
+        "icon" : "https://wiki.guildwars2.com/images/a/a8/Revenant_tango_icon_200px.png",
+        "name" : "Revenant"
+      },
+      "thief" : {
+        "color" : "0x974550",
+        "icon" : "https://wiki.guildwars2.com/images/1/19/Thief_tango_icon_200px.png",
+        "name" : "Thief"
+      },
+      "warrior" : {
+        "color" : "0xCAAA2A",
+        "icon" : "https://wiki.guildwars2.com/images/d/db/Warrior_tango_icon_200px.png",
+        "name" : "Warrior"
+      }
     },
     "bosses" : {
-    "vale_guardian" : { "name" : "Vale Guardian", "order" : 0 },
-    "spirit_woods" : { "name" : "Spirit Woods", "order" : 1 },
-    "gorseval" : { "name" : "Gorseval the Multifarious", "order" : 2 },
-    "sabetha" : { "name" : "Sabetha the Saboteur", "order" : 3 },
-    "slothasor" :  { "name" : "Slothasor", "order" : 4 },
-    "bandit_trio" :  { "name" : "Bandit Trio", "order" : 5 },
-    "matthias" : { "name" : "Matthias Gabrel", "order" : 6 },
-    "escort" :  { "name" : "Siege the Stronghold", "order" : 7 },
-    "keep_construct" :  { "name" : "Keep Construct", "order" : 8 },
-    "twisted_castle" :  { "name" : "Twisted Castle", "order" : 9 },
-    "xera" : { "name" : "Xera", "order" : 10 },
-    "cairn" :  { "name" : "Cairn the Indomitable", "order" : 11 },
-    "mursaat_overseer" :  { "name" : "Mursaat Overseer", "order" : 12 },
-    "samarog" :  { "name" : "Samarog", "order" : 13 },
-    "deimos" :  { "name" : "Deimos", "order" : 14 }
-  },
+      "vale_guardian" : { "name" : "Vale Guardian", "order" : 0 },
+      "spirit_woods" : { "name" : "Spirit Woods", "order" : 1 },
+      "gorseval" : { "name" : "Gorseval the Multifarious", "order" : 2 },
+      "sabetha" : { "name" : "Sabetha the Saboteur", "order" : 3 },
+      "slothasor" :  { "name" : "Slothasor", "order" : 4 },
+      "bandit_trio" :  { "name" : "Bandit Trio", "order" : 5 },
+      "matthias" : { "name" : "Matthias Gabrel", "order" : 6 },
+      "escort" :  { "name" : "Siege the Stronghold", "order" : 7 },
+      "keep_construct" :  { "name" : "Keep Construct", "order" : 8 },
+      "twisted_castle" :  { "name" : "Twisted Castle", "order" : 9 },
+      "xera" : { "name" : "Xera", "order" : 10 },
+      "cairn" :  { "name" : "Cairn the Indomitable", "order" : 11 },
+      "mursaat_overseer" :  { "name" : "Mursaat Overseer", "order" : 12 },
+      "samarog" :  { "name" : "Samarog", "order" : 13 },
+      "deimos" :  { "name" : "Deimos", "order" : 14 }
+    },
     "pact_supply" : [
       "[&BA8CAAA=][&BKYBAAA=][&BEwDAAA=][&BIcHAAA=][&BNIEAAA=][&BIMCAAA=]",
       "[&BIMBAAA=][&BBkAAAA=][&BEgAAAA=][&BH8HAAA=][&BKgCAAA=][&BGQCAAA=]",
@@ -98,20 +98,20 @@
             { "name": "",  "duration": 10, "color": "0x84C147" },
             { "name": "Night Bosses",  "duration": 20, "color": "0x6DAC2F" },
             { "name": "Daytime", "duration": 75,  "color": "0xC4E2A5" },
-            { "name": "Night",  "duration": 15, "color": "0x84C147" }]}
+            { "name": "Night",  "duration": 15, "color": "0x84C147" }]},
         {"name": "Auric Basin",
          "phases": [
             { "name": "Pillars",  "duration": 45, "color": "0xFFE37F" },
             { "name": "Challenges",  "duration": 15, "color": "0xFFD53D" },
             { "name": "Octovine",  "duration": 20, "color": "0xEAB700" },
             { "name": "Reset",  "duration": 10, "color": "0xFFF1C1" },
-            { "name": "Pillars",  "duration": 30, "color": "0xFFE37F" }]}
+            { "name": "Pillars",  "duration": 30, "color": "0xFFE37F" }]},
         {"name": "Tangled Depths",
          "phases": [
             { "name": "",  "duration": 25, "color": "0xFFD7D7" },
             { "name": "Prep",  "duration": 5, "color": "0xffbdbd" },
             { "name": "Chak Gerent",  "duration": 20, "color": "0xf99" },
-            { "name": "Help the Outposts",  "duration": 70, "color": "0xFFD7D7" }]}
+            { "name": "Help the Outposts",  "duration": 70, "color": "0xFFD7D7" }]},
 
         {"name": "Dragon's Stand",
          "phases": [
@@ -125,5 +125,50 @@
             { "name": "Crash Site",  "duration": 40, "color": "0xFCFADC" },
             { "name": "Sandstorm",  "duration": 20, "color": "0xDED98A" }]}
       ]
-   },
+    },
+    "insights": {
+      "legendary_insight":  77302,
+      "gift_of_prowess":    78989,
+      "envoy_insignia":     80516,
+      "refined_envoy_armor": {
+        "refined_envoy_helmet":       80387,
+        "refined_envoy_pauldrons":    80236,
+        "refined_envoy_breastplate":  80648,
+        "refined_envoy_gauntlets":    80673,
+        "refined_envoy_tassets":      80427,
+        "refined_envoy_greaves":      80127,
+        "refined_envoy_mask":         80634,
+        "refined_envoy_shoulderpads": 80366,
+        "refined_envoy_jerkin":       80607,
+        "refined_envoy_vambraces":    80658,
+        "refined_envoy_leggings":     80675,
+        "refined_envoy_boots":        80177,
+        "refined_envoy_cowl":         80441,
+        "refined_envoy_mantle":       80264,
+        "refined_envoy_vestments":    80120,
+        "refined_envoy_gloves":       80460,
+        "refined_envoy_pants":        80275,
+        "refined_envoy_shoes":        80583
+      },
+      "perfected_envoy_armor": {
+        "perfected_envoy_helmet":       80384,
+        "perfected_envoy_pauldrons":    80435,
+        "perfected_envoy_breastplate":  80254,
+        "perfected_envoy_gauntlets":    80205,
+        "perfected_envoy_tassets":      80277,
+        "perfected_envoy_greaves":      80557,
+        "perfected_envoy_mask":         80296,
+        "perfected_envoy_shoulderpads": 80145,
+        "perfected_envoy_jerkin":       80578,
+        "perfected_envoy_vambraces":    80161,
+        "perfected_envoy_leggings":     80252,
+        "perfected_envoy_boots":        80281,
+        "perfected_envoy_cowl":         80248,
+        "perfected_envoy_mantle":       80131,
+        "perfected_envoy_vestments":    80190,
+        "perfected_envoy_gloves":       80111,
+        "perfected_envoy_pants":        80356,
+        "perfected_envoy_shoes":        80399
+      }
+   }
 }
