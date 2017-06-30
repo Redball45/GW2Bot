@@ -1416,7 +1416,7 @@ class GuildWars2:
                                "`{1}`".format(user, e))
             return
         output = await self.display_all_dailies(results)
-        await self.bot.say("```" + output + "```")
+        await self.bot.say("```markdown\n" + output + "```")
 
     @checks.admin_or_permissions(manage_server=True)
     @commands.cooldown(1, 5, BucketType.user)
@@ -1464,7 +1464,7 @@ class GuildWars2:
         await self.bot.send_message(channel, "I will now send dailies "
                                     "to {0.mention}. Make sure it's toggled "
                                     "on using $daily notifier toggle on. "
-                                    "Example:\n```{1}```".format(channel, example))
+                                    "Example:\n```markdown\n{1}```".format(channel, example))
 
     @daily_notifier.command(pass_context=True, name="toggle")
     async def daily_notifier_toggle(self, ctx, on_off: bool):
@@ -1508,16 +1508,16 @@ class GuildWars2:
         return output
 
     async def display_all_dailies(self, dailylist, tomorrow=False):
-        dailies = ["Daily PSNA:", self.get_psna()]
+        dailies = ["#Daily PSNA:", self.get_psna()]
         if tomorrow:
-            dailies[0] = "PSNA at this time:"
-            dailies.append("PSNA in 8 hours:")
+            dailies[0] = "#PSNA at this time:"
+            dailies.append("#PSNA in 8 hours:")
             dailies.append(self.get_psna(1))
         fractals = []
         sections = ["pve", "pvp", "wvw", "fractals"]
         for x in sections:
             section = dailylist[x]
-            dailies.append("{0} DAILIES:".format(x.upper()))
+            dailies.append("#{0} DAILIES:".format(x.upper()))
             if x == "fractals":
                 for x in section:
                     d = await self.db.achievements.find_one({"_id": x["id"]})
@@ -2423,7 +2423,7 @@ class GuildWars2:
             message = await self.display_all_dailies(results, True)
             for channel in channels:
                 try:
-                    await self.bot.send_message(self.bot.get_channel(channel), "```" + message + "```\nHave a nice day!")
+                    await self.bot.send_message(self.bot.get_channel(channel), "```markdown\n" + message + "```\nHave a nice day!")
                 except:
                     pass
         except Exception as e:
