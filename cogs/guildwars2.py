@@ -1346,6 +1346,31 @@ class GuildWars2:
         except:
             await self.bot.say("Need permission to embed links")
 
+    @commands.command(pass_context=True, aliases=["hottimer", "hottimers"])
+    async def hotet(self, ctx):
+        """The event timer. Shows current progression of hot maps."""
+        time = datetime.datetime.utcnow()
+        maps = self.gamedata["event_timers"]["maps"]
+        output = ""
+        for hotmap in maps:
+            overlap = 0
+            output = output + "#" + hotmap["name"] + "\n"
+                    output = output + "Current phase is " + phases["name"] + ".\n"
+                        nextphase = nextphase - 120
+                    break
+                    if overlap == 0:
+                        timetostart = nextstart - position
+                        name = phases["name"]
+                    elif overlap > 0 and hotmap["name"] == "Dry Top": #dry top event starts at the 2 hour reset
+                        timetostart = 120 - position
+                        name = phases["name"]
+                    else:
+                        name = phases["nextname"]
+                    output = output + "Next phase is " + name + " in " + str(timetostart) + " minutes.\n"
+                    break
+            output = output + "\n"
+        await self.bot.say("```markdown\n" + output + "```")
+
     @commands.group(pass_context=True, aliases=["d"])
     async def daily(self, ctx):
         """Commands showing daily things"""
